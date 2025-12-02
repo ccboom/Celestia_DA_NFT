@@ -43,10 +43,9 @@ This is essentially a **Sovereign Rollup-style NFT system** on top of Celestia D
   - Chain ID: `private`  
   - We use `celestia-appd tx blob pay-for-blob` to write arbitrary JSON data as **Blobs**.
 
-Each Blob contains a JSON payload conforming to your custom protocol:
+Each Blob contains a JSON payload conforming to your custom protocol. Example `collection_definition`:
 
-```jsonc
-// Example: collection_definition
+```json
 {
   "type": "collection_definition",
   "collection_id": "celestia_dragons_v1",
@@ -90,7 +89,7 @@ Each Blob contains a JSON payload conforming to your custom protocol:
       - `26657`: RPC
       - `19090`: gRPC
       - `1317`: REST API
-  - `celestia-bridge`: optional, can be used for DA/light-like access (not strictly required in final design)
+  - `celestia-bridge`: optional, can be used for DA/light-like access (not strictly required)
 
 ### API Layer
 
@@ -121,7 +120,8 @@ Each Blob contains a JSON payload conforming to your custom protocol:
 ---
 
 ## 📦 Project Structure
-```jsonc
+
+```
 celestia-nft-project/
 ├── config/
 │   └── config.py              # Global config (namespace, DB path, etc.)
@@ -147,6 +147,8 @@ celestia-nft-project/
 └── docker-compose.yml         # celestia-app validator + optional bridge
 ```
 
+---
+
 # 🚀 Getting Started
 
 ## 1. Prerequisites
@@ -155,7 +157,7 @@ celestia-nft-project/
 - Docker & Docker Compose  
 - Python 3.10+ & virtualenv  
 
-**Install Docker & Compose (Ubuntu example):**
+Install Docker & Compose (Ubuntu example):
 
 ```bash
 sudo apt update
@@ -168,7 +170,7 @@ sudo usermod -aG docker $USER
 
 ## 2. Clone & Setup Python Environment
 
-**环境克隆与 Python 环境配置**
+环境克隆与 Python 环境配置：
 
 ```bash
 git clone <this-repo-url> celestia-nft-project
@@ -186,89 +188,92 @@ pip install fastapi uvicorn aiosqlite requests
 ## 3. Start Local Celestia Devnet (Docker)
 
 ```bash
-cd ~/celestia-local-devnet   # or wherever your docker-compose.yml is
+# 在包含 docker-compose.yml 的目录下启动
 docker-compose up -d
 
+# 查看容器状态
 docker-compose ps
+
+# 查看日志（示例）
 docker-compose logs celestia-validator | tail -n 20
 ```
-```markdown
-Verify endpoints:
-```
+
+验证端点：
+
 ```bash
 # Consensus RPC
 curl -s http://localhost:26657/status | jq '.result.sync_info.latest_block_height'
 
-
 # REST API
 curl -s http://localhost:1317/cosmos/base/tendermint/v1beta1/node_info | jq '.node_info.network'
 ```
-```markdown
 
 ## 4. Test Blob Client
+
 ```bash
 cd ~/celestia-nft-project
 source venv/bin/activate
-```
 python scripts/docker_blob_client.py
-```markdown
-You should see a blob submitted and included in a block.
-## 5. Deploy Initial Collection
 ```
+
+你应该会看到一个 blob 被提交并包含在区块中。
+
+## 5. Deploy Initial Collection
+
 ```bash
 python scripts/deploy_collection.py
 ```
-```markdown
-This submits a `collection_definition` blob and saves deployment info under `data/deploy_celestia_dragons_v1.json`.
-```
+
+这会提交一个 `collection_definition` blob，并在 `data/deploy_celestia_dragons_v1.json` 保存部署信息。
+
 ## 6. Run Test Flow (Mint / List / Buy / Transfer)
+
 ```bash
 python scripts/nft_operations.py test
 ```
-```markdown
-This will:
+
+该脚本示例会：
 
 - Mint NFT `#4` to Alice  
 - List NFT `#1` for sale  
 - Bob buys NFT `#1`  
 - Bob transfers NFT `#1` to Validator
-Results are saved in `data/test_flow_results.json`.
-```
+
+结果保存在 `data/test_flow_results.json`。
+
 ## 7. Import Data into SQLite
+
 ```bash
 # Import test flow operations into DB
 python indexer/import_operations.py
 ```
-```markdown
-This populates `data/nft.db` with:
+
+这会将数据导入 `data/nft.db`，包含：
 
 - Collections  
 - NFTs  
 - Listings  
 - Transfer history
-```
+
 ## 8. Start API Server
+
 ```bash
 uvicorn frontend.api:app --host 0.0.0.0 --port 8000
 ```
-```markdown
-Now you can:
 
-- Visit <http://localhost:8000> for the frontend
-Query API:
-```
-```bash
-curl http://localhost:8000/stats
-curl http://localhost:8000/collections
-curl http://localhost:8000/collections/celestia_dragons_v1
-curl http://localhost:8000/collections/celestia_dragons_v1/nfts
-curl http://localhost:8000/nft/celestia_dragons_v1/1
-curl http://localhost:8000/listings
-```
-```markdown
-## 🧪 How to Add a New Collection
-You can add a new collection via HTTP:
-```
+然后访问：
+
+- 前端： http://localhost:8000
+- 示例 API：
+  - `GET /stats`
+  - `GET /collections`
+  - `GET /collections/celestia_dragons_v1`
+  - `GET /collections/celestia_dragons_v1/nfts`
+  - `GET /nft/celestia_dragons_v1/1`
+  - `GET /listings`
+
+示例：创建新集合（通过 API）
+
 ```bash
 curl -X POST http://localhost:8000/collections \
   -H "Content-Type: application/json" \
@@ -290,27 +295,9 @@ curl -X POST http://localhost:8000/collections \
     ]
   }'
 ```
-```bash
-curl -X POST http://localhost:8000/collections \
-  -H "Content-Type: application/json" \
-  -d '{
-    "collection_id": "celestia_robots_v1",
-    "name": "Celestia Robots",
-    "description": "Robots on Celestia DA",
-    "nfts": [
-      {
-        "id": 1,
-        "metadata_uri": "ipfs://QmRobot1",
-        "extra": {"name": "Robot Alpha", "rarity": "epic"}
-      },
-      {
-        "id": 2,
-        "metadata_uri": "ipfs://QmRobot2",
-        "extra": {"name": "Robot Beta", "rarity": "rare"}
-      }
-    ]
-  }'
-```
+
+---
+
 ## 🔮 Extensions & Ideas
 ### Signature verification
 
