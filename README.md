@@ -63,7 +63,7 @@ Each Blob contains a JSON payload conforming to your custom protocol:
   ],
   "issuer_signature": "PLACEHOLDER"
 }
-
+```
 
 ### Logic Layer (Off-chain)
 
