@@ -63,6 +63,8 @@ Each Blob contains a JSON payload conforming to your custom protocol:
   ],
   "issuer_signature": "PLACEHOLDER"
 }
+```jsonc
+
 ### Logic Layer (Off-chain)
 
 - **Python indexer** (`indexer/indexer.py`, `indexer/database.py`)
