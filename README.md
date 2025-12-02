@@ -121,6 +121,7 @@ Each Blob contains a JSON payload conforming to your custom protocol:
 ---
 
 ## 📦 Project Structure
+```jsonc
 celestia-nft-project/
 ├── config/
 │   └── config.py              # Global config (namespace, DB path, etc.)
@@ -144,6 +145,7 @@ celestia-nft-project/
 │   ├── indexer.log
 │   └── api.log
 └── docker-compose.yml         # celestia-app validator + optional bridge
+```
 
 # 🚀 Getting Started
 
@@ -162,6 +164,7 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker $USER
 # Re-login or `newgrp docker` to apply group change
+```
 
 ## 2. Clone & Setup Python Environment
 
@@ -178,7 +181,7 @@ source venv/bin/activate
 # pip install -r requirements.txt
 
 pip install fastapi uvicorn aiosqlite requests
-
+```
 
 ## 3. Start Local Celestia Devnet (Docker)
 
@@ -188,12 +191,14 @@ docker-compose up -d
 
 docker-compose ps
 docker-compose logs celestia-validator | tail -n 20
-
+```
 ```markdown
 Verify endpoints:
+```
 ```bash
 # Consensus RPC
 curl -s http://localhost:26657/status | jq '.result.sync_info.latest_block_height'
+
 
 # REST API
 curl -s http://localhost:1317/cosmos/base/tendermint/v1beta1/node_info | jq '.node_info.network'
@@ -203,7 +208,7 @@ curl -s http://localhost:1317/cosmos/base/tendermint/v1beta1/node_info | jq '.no
 ```bash
 cd ~/celestia-nft-project
 source venv/bin/activate
-
+```
 python scripts/docker_blob_client.py
 ```markdown
 You should see a blob submitted and included in a block.
