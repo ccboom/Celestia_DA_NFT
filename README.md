@@ -10,6 +10,7 @@ A fully sovereign, smart-contract-free NFT protocol built directly on **Celestia
 No EVM, no CosmWasm, no smart contracts — just raw data, a protocol, and your own indexer.
 
 ---
+<img width="1255" height="904" alt="{59C76B51-6FC3-4779-9FB4-1B5CBE94B7D8}" src="https://github.com/user-attachments/assets/1bccd55c-2ec1-4ce1-ad8b-b49fda1097b0" />
 
 ## ✨ Features
 
