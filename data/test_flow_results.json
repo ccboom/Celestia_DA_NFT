@@ -1,0 +1,79 @@
+{
+  "results": [
+    [
+      "mint",
+      {
+        "txhash": "D010FFAAA396593D2BE55346AE7EA32EE581D4D6E848FF4B9D94EDD6557561DC",
+        "height": 232,
+        "namespace": "0000004e46545a4f4e45",
+        "data": {
+          "type": "nft_mint",
+          "collection_id": "celestia_dragons_v1",
+          "nft_id": 4,
+          "to": "celestia16gezsf4ujfxshd9vlmthusytz6s56zml4sz5cv",
+          "issuer": "celestia16gezsf4ujfxshd9vlmthusytz6s56zml4sz5cv",
+          "metadata_uri": "ipfs://QmShadowDragon",
+          "extra": {
+            "name": "Shadow Dragon",
+            "rarity": "mythic",
+            "power": 99
+          },
+          "timestamp": 1764654349
+        },
+        "data_hash": "dafc7c206c18447261fa051f36e634f4adcf945f47eec227b567ca55c3505b89"
+      }
+    ],
+    [
+      "list",
+      {
+        "txhash": "C5F77977569BE1CC5025C35E5DB920EEBD9B33EBF4A2FE8CC0D9F93CE9A3DF80",
+        "height": 234,
+        "namespace": "0000004e46545a4f4e45",
+        "data": {
+          "type": "nft_list",
+          "collection_id": "celestia_dragons_v1",
+          "nft_id": 1,
+          "seller": "celestia16gezsf4ujfxshd9vlmthusytz6s56zml4sz5cv",
+          "price": 5000000,
+          "timestamp": 1764654377
+        },
+        "data_hash": "80a141a4cbebc20d11c6178ad527c5dddc78c1095054d04187ab7984d6da6d3a"
+      }
+    ],
+    [
+      "buy",
+      {
+        "txhash": "FEC8C8209107E640E557D81752E5970D30E422AB43335DC93B4828B7BF94A9EF",
+        "height": 236,
+        "namespace": "0000004e46545a4f4e45",
+        "data": {
+          "type": "nft_buy",
+          "collection_id": "celestia_dragons_v1",
+          "nft_id": 1,
+          "buyer": "celestia1lwycycxa2lhfh82hutqa0w96dqhuhfxrdzsucz",
+          "payment_tx_hash": "PAYMENT_1764654388",
+          "timestamp": 1764654388
+        },
+        "data_hash": "31a4db9eee580bf343207572fe4f9cb0a25a88294a9d7560d7613ff7d44e94ba"
+      }
+    ],
+    [
+      "transfer",
+      {
+        "txhash": "3129436092E1FE9306A9A74B22C65312936E42A1582A6C46EEE0572C8E9C2729",
+        "height": 239,
+        "namespace": "0000004e46545a4f4e45",
+        "data": {
+          "type": "nft_transfer",
+          "collection_id": "celestia_dragons_v1",
+          "nft_id": 1,
+          "from": "celestia1lwycycxa2lhfh82hutqa0w96dqhuhfxrdzsucz",
+          "to": "celestia19s67mp7lza2u3u5l7fvlz9zg3upl5wuy9kqy99",
+          "timestamp": 1764654380
+        },
+        "data_hash": "7826d356d99898bb8b8779e24e92223a70541de7f42f8d9674f435d59e244613"
+      }
+    ]
+  ],
+  "timestamp": "2025-12-02 13:46:52"
+}

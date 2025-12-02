@@ -1,0 +1,85 @@
+{
+  "collection_data": {
+    "type": "collection_definition",
+    "collection_id": "celestia_dragons_v1",
+    "issuer": "celestia16gezsf4ujfxshd9vlmthusytz6s56zml4sz5cv",
+    "name": "Celestia Dragons Collection",
+    "description": "Dragon NFTs on Celestia DA",
+    "created_at_height": 0,
+    "nfts": [
+      {
+        "id": 1,
+        "metadata_uri": "ipfs://QmFireDragon",
+        "extra": {
+          "name": "Fire Dragon",
+          "rarity": "legendary",
+          "power": 95
+        }
+      },
+      {
+        "id": 2,
+        "metadata_uri": "ipfs://QmIceDragon",
+        "extra": {
+          "name": "Ice Dragon",
+          "rarity": "epic",
+          "power": 88
+        }
+      },
+      {
+        "id": 3,
+        "metadata_uri": "ipfs://QmThunderDragon",
+        "extra": {
+          "name": "Thunder Dragon",
+          "rarity": "rare",
+          "power": 82
+        }
+      }
+    ],
+    "issuer_signature": "PLACEHOLDER"
+  },
+  "result": {
+    "txhash": "8D716D9BCDE3714AE12736E2B4642244FAB337764D32E2EF9D1B89EF8D91215F",
+    "height": 230,
+    "namespace": "0000004e46545a4f4e45",
+    "data": {
+      "type": "collection_definition",
+      "collection_id": "celestia_dragons_v1",
+      "issuer": "celestia16gezsf4ujfxshd9vlmthusytz6s56zml4sz5cv",
+      "name": "Celestia Dragons Collection",
+      "description": "Dragon NFTs on Celestia DA",
+      "created_at_height": 0,
+      "nfts": [
+        {
+          "id": 1,
+          "metadata_uri": "ipfs://QmFireDragon",
+          "extra": {
+            "name": "Fire Dragon",
+            "rarity": "legendary",
+            "power": 95
+          }
+        },
+        {
+          "id": 2,
+          "metadata_uri": "ipfs://QmIceDragon",
+          "extra": {
+            "name": "Ice Dragon",
+            "rarity": "epic",
+            "power": 88
+          }
+        },
+        {
+          "id": 3,
+          "metadata_uri": "ipfs://QmThunderDragon",
+          "extra": {
+            "name": "Thunder Dragon",
+            "rarity": "rare",
+            "power": 82
+          }
+        }
+      ],
+      "issuer_signature": "PLACEHOLDER"
+    },
+    "data_hash": "9d771c296952a41a6b08cffeb2d16be2b0d913061538e4e3ac5d5717d1281fc5"
+  },
+  "deployed_at": "2025-12-02 13:45:45"
+}

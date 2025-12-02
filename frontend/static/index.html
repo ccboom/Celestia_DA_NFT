@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestia NFT - Sovereign Rollup</title>
+    <style>
+        :root {
+            --primary: #7B2CBF;
+            --primary-light: #9D4EDD;
+            --secondary: #E0AAFF;
+            --dark: #10002B;
+            --dark-light: #240046;
+            --text: #E0E0E0;
+            --text-muted: #9E9E9E;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --card-bg: #1A1A2E;
+            --border: #3D3D5C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, var(--primary) 0%, transparent 100%);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--secondary), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        nav button:hover, nav button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-light);
+        }
+
+        .stat-card .label {
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Section */
+        .section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* NFT Grid */
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .nft-card {
+            background: var(--dark);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nft-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(123, 44, 191, 0.3);
+        }
+
+        .nft-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .nft-info {
+            padding: 15px;
+        }
+
+        .nft-info h3 {
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .nft-info .collection {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .nft-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nft-meta .rarity {
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .rarity.legendary { background: #FFD700; color: #000; }
+        .rarity.epic { background: #9B30FF; color: #fff; }
+        .rarity.rare { background: #1E90FF; color: #fff; }
+        .rarity.mythic { background: #FF4500; color: #fff; }
+        .rarity.common { background: #808080; color: #fff; }
+
+        .nft-meta .price {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Listing Table */
+        .listing-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .listing-table th, .listing-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .listing-table th {
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .listing-table tr:hover {
+            background: var(--dark);
+        }
+
+        /* History */
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--dark);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .history-item .icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .history-item .details {
+            flex: 1;
+        }
+
+        .history-item .details .type {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .history-item .details .address {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .history-item .height {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row .label {
+            color: var(--text-muted);
+        }
+
+        .detail-row .value {
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+        }
+
+        .loading::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 50px;
+        }
+
+        footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Celestia NFT</h1>
+        <p>Sovereign Rollup Style NFT Protocol</p>
+        <span class="badge">No Smart Contract - Pure DA</span>
+    </header>
+
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <button class="active" onclick="showSection('home')">Home</button>
+            <button onclick="showSection('nfts')">NFTs</button>
+            <button onclick="showSection('market')">Market</button>
+            <button onclick="showSection('history')">History</button>
+        </nav>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="icon">📦</div>
+                <div class="value" id="stat-collections">-</div>
+                <div class="label">Collections</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🎨</div>
+                <div class="value" id="stat-nfts">-</div>
+                <div class="label">Total NFTs</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">💰</div>
+                <div class="value" id="stat-listings">-</div>
+                <div class="label">Active Listings</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">⛓️</div>
+                <div class="value" id="stat-height">-</div>
+                <div class="label">Indexed Height</div>
+            </div>
+        </div>
+
+        <!-- Home Section -->
+        <div id="section-home" class="section">
+            <h2 class="section-title">📦 NFT Collections</h2>
+            <div id="collections-list" class="nft-grid">
+                <div class="loading">Loading</div>
+            </div>
+        </div>
+
+        <!-- NFTs Section -->
+        <div id="section-nfts" class="section" style="display: none;">
+            <h2 class="section-title">🎨 All NFTs</h2>
+            <div id="nfts-list" class="nft-grid">
+                <div class="loading">Loading</div>
+            </div>
+        </div>
+
+        <!-- Market Section -->
+        <div id="section-market" class="section" style="display: none;">
+            <h2 class="section-title">💰 NFT Marketplace</h2>
+            <table class="listing-table" id="listings-table">
+                <thead>
+                    <tr>
+                        <th>NFT</th>
+                        <th>Seller</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="listings-body">
+                    <tr><td colspan="4" class="loading">Loading</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- History Section -->
+        <div id="section-history" class="section" style="display: none;">
+            <h2 class="section-title">📜 Recent Transactions</h2>
+            <div id="history-list">
+                <div class="loading">Loading</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NFT Detail Modal -->
+    <div class="modal" id="nft-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">NFT Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built with ❤️ on <a href="https://celestia.org" target="_blank">Celestia</a></p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">
+            Sovereign Rollup - No Smart Contract - Pure Data Availability
+        </p>
+    </footer>
+
+    <script>
+        const API_BASE = '';  // Same origin
+
+        // Dragon emojis for NFT images
+        const DRAGON_EMOJIS = ['🐉', '🔥', '❄️', '⚡', '🌑', '🌟', '💎', '🌈'];
+
+        // Utility functions
+        function shortenAddress(addr) {
+            if (!addr) return '-';
+            return addr.slice(0, 10) + '...' + addr.slice(-6);
+        }
+
+        function formatPrice(utia) {
+            const tia = utia / 1000000;
+            return tia.toFixed(2) + ' TIA';
+        }
+
+        function getRarityClass(rarity) {
+            return rarity ? rarity.toLowerCase() : 'common';
+        }
+
+        function getDragonEmoji(nftId) {
+            return DRAGON_EMOJIS[nftId % DRAGON_EMOJIS.length];
+        }
+
+        // API calls
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                document.getElementById('stat-collections').textContent = data.collections || 0;
+                document.getElementById('stat-nfts').textContent = data.total_nfts || 0;
+                document.getElementById('stat-listings').textContent = data.total_listings || 0;
+                document.getElementById('stat-height').textContent = data.last_indexed_height || 0;
+            } catch (e) {
+                console.error('Failed to fetch stats:', e);
+            }
+        }
+
+        async function fetchCollections() {
+			try {
+				const res = await fetch(`${API_BASE}/collections`);
+				if (!res.ok) {
+					document.getElementById('collections-list').innerHTML = '<p>Failed to load collections</p>';
+					return;
+				}
+
+				const data = await res.json();
+				const collections = data.collections || [];
+
+				if (collections.length === 0) {
+					document.getElementById('collections-list').innerHTML = '<p>No collections found</p>';
+					return;
+				}
+
+				const html = collections.map(collection => `
+					<div class="nft-card" onclick="loadCollectionNFTs('${collection.collection_id}')">
+						<div class="nft-image">🐉</div>
+						<div class="nft-info">
+							<h3>${collection.name}</h3>
+							<p class="collection">${collection.description || ''}</p>
+							<div class="nft-meta">
+								<span class="rarity rare">${collection.total_supply} Items</span>
+								<span>${collection.collection_id}</span>
+							</div>
+						</div>
+					</div>
+				`).join('');
+
+				document.getElementById('collections-list').innerHTML = html;
+			} catch (e) {
+				console.error('Failed to fetch collections:', e);
+				document.getElementById('collections-list').innerHTML = '<p>Failed to load</p>';
+			}
+		}
+
+        async function loadCollectionNFTs(collectionId) {
+            showSection('nfts');
+            try {
+                const res = await fetch(`${API_BASE}/collections/${collectionId}/nfts`);
+                const data = await res.json();
+                
+                if (!data.nfts || data.nfts.length === 0) {
+                    document.getElementById('nfts-list').innerHTML = '<p>No NFTs found</p>';
+                    return;
+                }
+                
+                const html = data.nfts.map(nft => `
+                    <div class="nft-card" onclick="showNFTDetail('${nft.collection_id}', ${nft.nft_id})">
+                        <div class="nft-image">${getDragonEmoji(nft.nft_id)}</div>
+                        <div class="nft-info">
+                            <h3>${nft.extra?.name || 'NFT #' + nft.nft_id}</h3>
+                            <p class="collection">${nft.collection_id}</p>
+                            <div class="nft-meta">
+                                <span class="rarity ${getRarityClass(nft.extra?.rarity)}">${nft.extra?.rarity || 'common'}</span>
+                                <span>${nft.status}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('nfts-list').innerHTML = html;
+            } catch (e) {
+                console.error('Failed to load NFTs:', e);
+                document.getElementById('nfts-list').innerHTML = '<p>Failed to load</p>';
+            }
+        }
+
+        async function fetchListings() {
+            try {
+                const res = await fetch(`${API_BASE}/listings`);
+                const data = await res.json();
+                
+                if (!data.listings || data.listings.length === 0) {
+                    document.getElementById('listings-body').innerHTML = '<tr><td colspan="4">No active listings</td></tr>';
+                    return;
+                }
+                
+                const html = data.listings.map(listing => `
+                    <tr>
+                        <td>
+                            <strong>${listing.collection_id}</strong> #${listing.nft_id}
+                        </td>
+                        <td>${shortenAddress(listing.seller)}</td>
+                        <td class="price">${formatPrice(listing.price)}</td>
+                        <td>
+                            <button onclick="showNFTDetail('${listing.collection_id}', ${listing.nft_id})" 
+                                    style="padding: 5px 15px; border-radius: 5px; background: var(--primary); border: none; color: white; cursor: pointer;">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('listings-body').innerHTML = html;
+            } catch (e) {
+                console.error('Failed to fetch listings:', e);
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                // Fetch history for the main collection
+                const collectionId = 'celestia_dragons_v1';
+                const nftIds = [1, 2, 3, 4];
+                
+                let allHistory = [];
+                
+                for (const nftId of nftIds) {
+                    try {
+                        const res = await fetch(`${API_BASE}/history/${collectionId}/${nftId}`);
+                        const data = await res.json();
+                        if (data.history) {
+                            allHistory = allHistory.concat(data.history.map(h => ({...h, nft_id: nftId})));
+                        }
+                    } catch (e) {}
+                }
+                
+                if (allHistory.length === 0) {
+                    document.getElementById('history-list').innerHTML = '<p>No transaction history</p>';
+                    return;
+                }
+                
+                // Sort by block height (descending)
+                allHistory.sort((a, b) => b.block_height - a.block_height);
+                
+                const typeIcons = {
+                    'mint': '🎨',
+                    'transfer': '🔄',
+                    'sale': '💰',
+                    'list': '📋'
+                };
+                
+                const typeLabels = {
+                    'mint': 'Mint',
+                    'transfer': 'Transfer',
+                    'sale': 'Sale',
+                    'list': 'List'
+                };
+                
+                const html = allHistory.slice(0, 20).map(h => `
+                    <div class="history-item">
+                        <div class="icon">${typeIcons[h.tx_type] || '📝'}</div>
+                        <div class="details">
+                            <div class="type">${typeLabels[h.tx_type] || h.tx_type} - NFT #${h.nft_id}</div>
+                            <div class="address">
+                                ${shortenAddress(h.from_address)} → ${shortenAddress(h.to_address)}
+                                ${h.price ? ` (${formatPrice(h.price)})` : ''}
+                            </div>
+                        </div>
+                        <div class="height">Block #${h.block_height}</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('history-list').innerHTML = html;
+            } catch (e) {
+                console.error('Failed to fetch history:', e);
+                document.getElementById('history-list').innerHTML = '<p>Failed to load</p>';
+            }
+        }
+
+        async function showNFTDetail(collectionId, nftId) {
+            try {
+                const res = await fetch(`${API_BASE}/nft/${collectionId}/${nftId}`);
+                const nft = await res.json();
+                
+                document.getElementById('modal-title').textContent = nft.extra?.name || `NFT #${nft.nft_id}`;
+                
+                const html = `
+                    <div style="text-align: center; font-size: 6rem; padding: 30px;">
+                        ${getDragonEmoji(nft.nft_id)}
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Collection ID</span>
+                        <span class="value">${nft.collection_id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">NFT ID</span>
+                        <span class="value">#${nft.nft_id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Owner</span>
+                        <span class="value">${shortenAddress(nft.owner)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Status</span>
+                        <span class="value">${nft.status}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Rarity</span>
+                        <span class="rarity ${getRarityClass(nft.extra?.rarity)}" style="padding: 3px 10px; border-radius: 5px;">
+                            ${nft.extra?.rarity || 'common'}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Power</span>
+                        <span class="value">${nft.extra?.power || '-'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Metadata URI</span>
+                        <span class="value">${nft.metadata_uri || '-'}</span>
+                    </div>
+                `;
+                
+                document.getElementById('modal-body').innerHTML = html;
+                document.getElementById('nft-modal').classList.add('active');
+            } catch (e) {
+                console.error('Failed to fetch NFT detail:', e);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('nft-modal').classList.remove('active');
+        }
+
+        // Section navigation
+        function showSection(section) {
+            // Update nav buttons
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            
+            // Show selected section
+            document.getElementById(`section-${section}`).style.display = 'block';
+            
+            // Load data for the section
+            if (section === 'home') {
+                fetchCollections();
+            } else if (section === 'nfts') {
+                loadCollectionNFTs('celestia_dragons_v1');
+            } else if (section === 'market') {
+                fetchListings();
+            } else if (section === 'history') {
+                fetchHistory();
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('nft-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchStats();
+            fetchCollections();
+            
+            // Auto refresh stats every 10 seconds
+            setInterval(fetchStats, 10000);
+        });
+    </script>
+</body>
+</html>

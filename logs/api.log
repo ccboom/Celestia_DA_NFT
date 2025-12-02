@@ -1,0 +1,20 @@
+nohup: ignoring input
+INFO:     Started server process [9920]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+✅ 数据库初始化完成: /home/config/../data/nft.db
+INFO:     127.0.0.1:45539 - "GET /collections/celestia_dragons_v1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45549 - "GET /nft/celestia_dragons_v1/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46225 - "GET /nft/celestia_dragons_v1/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46241 - "GET /owner/celestia16gezsf4ujfxshd9vlmthusytz6s56zml4sz5cv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46545 - "GET /owner/celestia1lwycycxa2lhfh82hutqa0w96dqhuhfxrdzsucz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47337 - "GET /collections/celestia_dragons_v1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47347 - "GET /nft/celestia_dragons_v1/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45381 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45859 - "GET /collections/celestia_dragons_v1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45861 - "GET /nft/celestia_dragons_v1/1 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [9920]
