@@ -170,7 +170,7 @@ sudo usermod -aG docker $USER
 
 ## 2. Clone & Setup Python Environment
 
-环境克隆与 Python 环境配置：
+Clone the repository and set up the Python environment:
 
 ```bash
 git clone <this-repo-url> celestia-nft-project
@@ -179,7 +179,7 @@ cd celestia-nft-project
 python3 -m venv venv
 source venv/bin/activate
 
-# 如果项目有 requirements.txt，可以使用：
+# If the project provides a requirements.txt, you can use:
 # pip install -r requirements.txt
 
 pip install fastapi uvicorn aiosqlite requests
@@ -188,17 +188,17 @@ pip install fastapi uvicorn aiosqlite requests
 ## 3. Start Local Celestia Devnet (Docker)
 
 ```bash
-# 在包含 docker-compose.yml 的目录下启动
+# From the directory containing docker-compose.yml
 docker-compose up -d
 
-# 查看容器状态
+# Check container status
 docker-compose ps
 
-# 查看日志（示例）
+# View logs (example)
 docker-compose logs celestia-validator | tail -n 20
 ```
 
-验证端点：
+Verify endpoints:
 
 ```bash
 # Consensus RPC
@@ -216,7 +216,7 @@ source venv/bin/activate
 python scripts/docker_blob_client.py
 ```
 
-你应该会看到一个 blob 被提交并包含在区块中。
+You should see a blob submitted and included in a block.
 
 ## 5. Deploy Initial Collection
 
@@ -224,7 +224,7 @@ python scripts/docker_blob_client.py
 python scripts/deploy_collection.py
 ```
 
-这会提交一个 `collection_definition` blob，并在 `data/deploy_celestia_dragons_v1.json` 保存部署信息。
+This will submit a `collection_definition` blob and save deployment info to `data/deploy_celestia_dragons_v1.json`.
 
 ## 6. Run Test Flow (Mint / List / Buy / Transfer)
 
@@ -232,23 +232,23 @@ python scripts/deploy_collection.py
 python scripts/nft_operations.py test
 ```
 
-该脚本示例会：
+This example script will:
 
 - Mint NFT `#4` to Alice  
 - List NFT `#1` for sale  
 - Bob buys NFT `#1`  
-- Bob transfers NFT `#1` to Validator
+- Bob transfers NFT `#1` to the Validator
 
-结果保存在 `data/test_flow_results.json`。
+Results are saved to `data/test_flow_results.json`.
 
 ## 7. Import Data into SQLite
 
 ```bash
-# Import test flow operations into DB
+# Import test flow operations into the DB
 python indexer/import_operations.py
 ```
 
-这会将数据导入 `data/nft.db`，包含：
+This will populate `data/nft.db` with:
 
 - Collections  
 - NFTs  
@@ -261,10 +261,10 @@ python indexer/import_operations.py
 uvicorn frontend.api:app --host 0.0.0.0 --port 8000
 ```
 
-然后访问：
+Then visit:
 
-- 前端： http://localhost:8000
-- 示例 API：
+- Frontend: http://localhost:8000
+- Example APIs:
   - `GET /stats`
   - `GET /collections`
   - `GET /collections/celestia_dragons_v1`
@@ -272,7 +272,7 @@ uvicorn frontend.api:app --host 0.0.0.0 --port 8000
   - `GET /nft/celestia_dragons_v1/1`
   - `GET /listings`
 
-示例：创建新集合（通过 API）
+Example: create a new collection (via API)
 
 ```bash
 curl -X POST http://localhost:8000/collections \
@@ -329,7 +329,3 @@ PRs, ideas and extensions are welcome, especially around:
 - Cleaner devnet / Docker setup  
 - Alternative frontends (React/Vue/Svelte)  
 - Indexer performance & robustness improvements
-
-
-
-
