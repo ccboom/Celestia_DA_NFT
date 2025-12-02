@@ -202,6 +202,7 @@ curl -s http://localhost:26657/status | jq '.result.sync_info.latest_block_heigh
 
 # REST API
 curl -s http://localhost:1317/cosmos/base/tendermint/v1beta1/node_info | jq '.node_info.network'
+```
 ```markdown
 
 ## 4. Test Blob Client
@@ -213,15 +214,17 @@ python scripts/docker_blob_client.py
 ```markdown
 You should see a blob submitted and included in a block.
 ## 5. Deploy Initial Collection
+```
 ```bash
 python scripts/deploy_collection.py
-
+```
 ```markdown
 This submits a `collection_definition` blob and saves deployment info under `data/deploy_celestia_dragons_v1.json`.
+```
 ## 6. Run Test Flow (Mint / List / Buy / Transfer)
 ```bash
 python scripts/nft_operations.py test
-
+```
 ```markdown
 This will:
 
@@ -230,11 +233,12 @@ This will:
 - Bob buys NFT `#1`  
 - Bob transfers NFT `#1` to Validator
 Results are saved in `data/test_flow_results.json`.
+```
 ## 7. Import Data into SQLite
 ```bash
 # Import test flow operations into DB
 python indexer/import_operations.py
-
+```
 ```markdown
 This populates `data/nft.db` with:
 
@@ -242,15 +246,17 @@ This populates `data/nft.db` with:
 - NFTs  
 - Listings  
 - Transfer history
+```
 ## 8. Start API Server
 ```bash
 uvicorn frontend.api:app --host 0.0.0.0 --port 8000
-
+```
 ```markdown
 Now you can:
 
 - Visit <http://localhost:8000> for the frontend
 Query API:
+```
 ```bash
 curl http://localhost:8000/stats
 curl http://localhost:8000/collections
@@ -258,10 +264,11 @@ curl http://localhost:8000/collections/celestia_dragons_v1
 curl http://localhost:8000/collections/celestia_dragons_v1/nfts
 curl http://localhost:8000/nft/celestia_dragons_v1/1
 curl http://localhost:8000/listings
-
+```
 ```markdown
 ## 🧪 How to Add a New Collection
 You can add a new collection via HTTP:
+```
 ```bash
 curl -X POST http://localhost:8000/collections \
   -H "Content-Type: application/json" \
@@ -282,6 +289,7 @@ curl -X POST http://localhost:8000/collections \
       }
     ]
   }'
+```
 ```bash
 curl -X POST http://localhost:8000/collections \
   -H "Content-Type: application/json" \
@@ -302,6 +310,7 @@ curl -X POST http://localhost:8000/collections \
       }
     ]
   }'
+```
 ## 🔮 Extensions & Ideas
 ### Signature verification
 
