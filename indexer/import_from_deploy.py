@@ -9,11 +9,11 @@ from database import NFTDatabase
 
 
 def import_collection(deploy_file: str):
-    """从部署文件导入集合到数据库"""
+    """Import collection from deploy file into the database"""
     db = NFTDatabase()
     
     if not os.path.exists(deploy_file):
-        print(f"❌ 文件不存在: {deploy_file}")
+        print(f"❌ File does not exist: {deploy_file}")
         return False
     
     with open(deploy_file, 'r') as f:
@@ -24,16 +24,16 @@ def import_collection(deploy_file: str):
     height = result.get('height', 1)
     txhash = result.get('txhash', '')
     
-    print(f"📦 导入集合: {collection_data['collection_id']}")
-    print(f"  高度: {height}")
+    print(f"📦 Importing collection: {collection_data['collection_id']}")
+    print(f"  Height: {height}")
     print(f"  TxHash: {txhash}")
     
     success = db.create_collection(collection_data, height, txhash)
     
     if success:
-        print("✅ 导入成功!")
+        print("✅ Import succeeded!")
     else:
-        print("⚠️ 导入失败（可能已存在）")
+        print("⚠️ Import failed (might already exist)")
     
     return success
 
@@ -41,14 +41,14 @@ def import_collection(deploy_file: str):
 def main():
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     
-    # 查找所有 deploy_*.json 文件
+    # Find all deploy_*.json files
     deploy_files = [f for f in os.listdir(data_dir) if f.startswith('deploy_') and f.endswith('.json')]
     
     if not deploy_files:
-        print("没有找到部署文件")
+        print("No deployment files found")
         return
     
-    print(f"找到 {len(deploy_files)} 个部署文件\n")
+    print(f"Found {len(deploy_files)} deployment files\n")
     
     for filename in deploy_files:
         filepath = os.path.join(data_dir, filename)
