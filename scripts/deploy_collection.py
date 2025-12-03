@@ -11,7 +11,7 @@ from scripts.docker_blob_client import submit_collection
 
 
 def get_alice_address():
-    """获取容器内 alice 的地址"""
+    """Get the address of 'alice' inside the container"""
     result = subprocess.run(
         'docker exec celestia-validator celestia-appd keys show alice -a --keyring-backend test',
         shell=True, capture_output=True, text=True
@@ -23,7 +23,7 @@ def main():
     collection_id = "celestia_dragons_v1"
     alice_address = get_alice_address()
     
-    print(f"Alice 地址: {alice_address}")
+    print(f"Alice address: {alice_address}")
     
     collection_data = {
         'type': 'collection_definition',
@@ -52,20 +52,20 @@ def main():
         'issuer_signature': 'PLACEHOLDER'
     }
     
-    print(f"\n📦 部署集合: {collection_id}")
-    print(f"  NFT 数量: {len(collection_data['nfts'])}")
+    print(f"\n📦 Deploying collection: {collection_id}")
+    print(f"  NFT count: {len(collection_data['nfts'])}")
     print("="*50)
     
     result = submit_collection(collection_data)
     
     if result:
         print("="*50)
-        print("🎉 集合部署成功!")
+        print("🎉 Collection deployed successfully!")
         print(f"  Collection ID: {collection_id}")
         print(f"  TxHash: {result['txhash']}")
         print(f"  Height: {result['height']}")
         
-        # 保存结果
+        # save
         output_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         os.makedirs(output_dir, exist_ok=True)
         
@@ -79,10 +79,10 @@ def main():
         with open(output_file, 'w') as f:
             json.dump(deploy_info, f, indent=2)
             
-        print(f"  保存到: {output_file}")
+        print(f"  Saved to: {output_file}")
         return result
     else:
-        print("❌ 部署失败")
+        print("❌ Deployment failed")
         return None
 
 
