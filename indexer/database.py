@@ -1,5 +1,5 @@
 """
-SQLite 数据库操作模块
+SQLite Database Operations Module
 """
 import sqlite3
 import json
@@ -25,11 +25,11 @@ class NFTDatabase:
         return sqlite3.connect(self.db_path)
     
     def _init_tables(self):
-        """初始化数据库表"""
+        """Initialize database tables"""
         conn = self._get_conn()
         cursor = conn.cursor()
         
-        # 集合表
+        # Collections table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS collections (
                 collection_id TEXT PRIMARY KEY,
@@ -44,7 +44,7 @@ class NFTDatabase:
             )
         ''')
         
-        # NFT 表
+        # NFT table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS nfts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,7 +62,7 @@ class NFTDatabase:
             )
         ''')
         
-        # 挂单表
+        # Listings table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS listings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,7 +78,7 @@ class NFTDatabase:
             )
         ''')
         
-        # 交易历史表
+        # Transfer history table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS transfer_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -94,7 +94,7 @@ class NFTDatabase:
             )
         ''')
         
-        # 索引器状态表
+        # Indexer state table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS indexer_state (
                 key TEXT PRIMARY KEY,
@@ -103,7 +103,7 @@ class NFTDatabase:
             )
         ''')
         
-        # 处理过的交易表 (防止重复处理)
+        # Processed transactions table (prevent duplicate processing)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS processed_txs (
                 tx_hash TEXT PRIMARY KEY,
@@ -114,26 +114,26 @@ class NFTDatabase:
         
         conn.commit()
         conn.close()
-        print(f"✅ 数据库初始化完成: {self.db_path}")
+        print(f"✅ Database initialized: {self.db_path}")
     
-    # ================== 集合操作 ==================
+    # ================== Collection Operations ==================
     
     def create_collection(self, collection_data: Dict, height: int, tx_hash: str = None) -> bool:
-        """创建 NFT 集合"""
+        """Create NFT collection"""
         conn = self._get_conn()
         cursor = conn.cursor()
         
         try:
-            # 检查是否已存在
+            # Check if already exists
             cursor.execute(
                 "SELECT collection_id FROM collections WHERE collection_id = ?",
                 (collection_data['collection_id'],)
             )
             if cursor.fetchone():
-                print(f"⚠️ 集合已存在: {collection_data['collection_id']}")
+                print(f"⚠️ Collection already exists: {collection_data['collection_id']}")
                 return False
             
-            # 插入集合
+            # Insert collection
             cursor.execute('''
                 INSERT INTO collections 
                 (collection_id, issuer, name, description, created_at_height, raw_json, tx_hash)
@@ -148,7 +148,7 @@ class NFTDatabase:
                 tx_hash
             ))
             
-            # 如果包含初始 NFT，则创建它们
+            # If contains initial NFTs, create them
             nfts = collection_data.get('nfts', [])
             for nft in nfts:
                 cursor.execute('''
@@ -160,12 +160,12 @@ class NFTDatabase:
                     nft['id'],
                     nft.get('metadata_uri', ''),
                     json.dumps(nft.get('extra', {})),
-                    collection_data['issuer'],  # 初始拥有者是发行者
+                    collection_data['issuer'],  # Initial owner is the issuer
                     height,
                     tx_hash
                 ))
                 
-                # 记录铸造历史
+                # Record mint history
                 cursor.execute('''
                     INSERT INTO transfer_history
                     (collection_id, nft_id, from_address, to_address, tx_type, block_height, tx_hash)
@@ -180,24 +180,24 @@ class NFTDatabase:
                     tx_hash
                 ))
             
-            # 更新总供应量
+            # Update total supply
             cursor.execute('''
                 UPDATE collections SET total_supply = ? WHERE collection_id = ?
             ''', (len(nfts), collection_data['collection_id']))
             
             conn.commit()
-            print(f"✅ 集合创建成功: {collection_data['collection_id']}, NFT数量: {len(nfts)}")
+            print(f"✅ Collection created successfully: {collection_data['collection_id']}, NFT count: {len(nfts)}")
             return True
             
         except Exception as e:
             conn.rollback()
-            print(f"❌ 创建集合失败: {e}")
+            print(f"❌ Failed to create collection: {e}")
             return False
         finally:
             conn.close()
     
     def get_collection(self, collection_id: str) -> Optional[Dict]:
-        """获取集合信息"""
+        """Get collection info"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute(
@@ -243,10 +243,10 @@ class NFTDatabase:
             for row in rows
         ]
     
-    # ================== NFT 操作 ==================
+    # ================== NFT Operations ==================
     
     def get_nft(self, collection_id: str, nft_id: int) -> Optional[Dict]:
-        """获取 NFT 信息"""
+        """Get NFT info"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute(
@@ -318,7 +318,7 @@ class NFTDatabase:
         return count
     
     def get_nft_owner(self, collection_id: str, nft_id: int) -> Optional[str]:
-        """获取 NFT 拥有者"""
+        """Get NFT owner"""
         nft = self.get_nft(collection_id, nft_id)
         return nft['owner'] if nft else None
     
@@ -326,30 +326,30 @@ class NFTDatabase:
                      from_addr: str, to_addr: str, 
                      height: int, tx_hash: str = None,
                      tx_type: str = "transfer", price: int = None) -> bool:
-        """转移 NFT 所有权"""
+        """Transfer NFT ownership"""
         conn = self._get_conn()
         cursor = conn.cursor()
         
         try:
-            # 验证当前拥有者
+            # Verify current owner
             current_owner = self.get_nft_owner(collection_id, nft_id)
             if current_owner != from_addr:
-                print(f"❌ 转移失败: {from_addr} 不是 NFT #{nft_id} 的拥有者 (当前: {current_owner})")
+                print(f"❌ Transfer failed: {from_addr} is not the owner of NFT #{nft_id} (current: {current_owner})")
                 return False
             
-            # 更新拥有者
+            # Update owner
             cursor.execute('''
                 UPDATE nfts SET owner = ?, status = 'active' 
                 WHERE collection_id = ? AND nft_id = ?
             ''', (to_addr, collection_id, nft_id))
             
-            # 如果有挂单，取消它
+            # If there's a listing, cancel it
             cursor.execute('''
                 UPDATE listings SET status = 'sold' 
                 WHERE collection_id = ? AND nft_id = ? AND status = 'active'
             ''', (collection_id, nft_id))
             
-            # 记录转移历史
+            # Record transfer history
             cursor.execute('''
                 INSERT INTO transfer_history
                 (collection_id, nft_id, from_address, to_address, tx_type, price, block_height, tx_hash)
@@ -357,12 +357,12 @@ class NFTDatabase:
             ''', (collection_id, nft_id, from_addr, to_addr, tx_type, price, height, tx_hash))
             
             conn.commit()
-            print(f"✅ NFT 转移成功: {collection_id}#{nft_id} {from_addr[:20]}... -> {to_addr[:20]}...")
+            print(f"✅ NFT transfer successful: {collection_id}#{nft_id} {from_addr[:20]}... -> {to_addr[:20]}...")
             return True
             
         except Exception as e:
             conn.rollback()
-            print(f"❌ 转移失败: {e}")
+            print(f"❌ Transfer failed: {e}")
             return False
         finally:
             conn.close()
@@ -370,39 +370,39 @@ class NFTDatabase:
     def mint_nft(self, collection_id: str, nft_id: int, to_addr: str,
                  metadata_uri: str, extra: Dict, height: int, 
                  issuer: str, tx_hash: str = None) -> bool:
-        """铸造新 NFT"""
+        """Mint new NFT"""
         conn = self._get_conn()
         cursor = conn.cursor()
         
         try:
-            # 验证集合存在且发行者正确
+            # Verify collection exists and issuer is correct
             collection = self.get_collection(collection_id)
             if not collection:
-                print(f"❌ 铸造失败: 集合不存在 {collection_id}")
+                print(f"❌ Mint failed: Collection does not exist {collection_id}")
                 return False
             
             if collection['issuer'] != issuer:
-                print(f"❌ 铸造失败: {issuer} 不是集合发行者")
+                print(f"❌ Mint failed: {issuer} is not the collection issuer")
                 return False
             
-            # 检查 NFT ID 是否已存在
+            # Check if NFT ID already exists
             if self.get_nft(collection_id, nft_id):
-                print(f"❌ 铸造失败: NFT #{nft_id} 已存在")
+                print(f"❌ Mint failed: NFT #{nft_id} already exists")
                 return False
             
-            # 插入 NFT
+            # Insert NFT
             cursor.execute('''
                 INSERT INTO nfts 
                 (collection_id, nft_id, metadata_uri, extra, owner, created_at_height, tx_hash)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (collection_id, nft_id, metadata_uri, json.dumps(extra), to_addr, height, tx_hash))
             
-            # 更新总供应量
+            # Update total supply
             cursor.execute('''
                 UPDATE collections SET total_supply = total_supply + 1 WHERE collection_id = ?
             ''', (collection_id,))
             
-            # 记录历史
+            # Record history
             cursor.execute('''
                 INSERT INTO transfer_history
                 (collection_id, nft_id, from_address, to_address, tx_type, block_height, tx_hash)
@@ -410,70 +410,70 @@ class NFTDatabase:
             ''', (collection_id, nft_id, "MINT", to_addr, "mint", height, tx_hash))
             
             conn.commit()
-            print(f"✅ NFT 铸造成功: {collection_id}#{nft_id} -> {to_addr[:20]}...")
+            print(f"✅ NFT minted successfully: {collection_id}#{nft_id} -> {to_addr[:20]}...")
             return True
             
         except Exception as e:
             conn.rollback()
-            print(f"❌ 铸造失败: {e}")
+            print(f"❌ Mint failed: {e}")
             return False
         finally:
             conn.close()
     
-    # ================== 挂单操作 ==================
+    # ================== Listing Operations ==================
     
     def create_listing(self, collection_id: str, nft_id: int, 
                        seller: str, price: int, height: int, 
                        tx_hash: str = None) -> bool:
-        """创建挂单"""
+        """Create listing"""
         conn = self._get_conn()
         cursor = conn.cursor()
         
         try:
-            # 验证卖家是拥有者
+            # Verify seller is the owner
             current_owner = self.get_nft_owner(collection_id, nft_id)
             if current_owner != seller:
-                print(f"❌ 挂单失败: {seller} 不是 NFT #{nft_id} 的拥有者")
+                print(f"❌ Listing failed: {seller} is not the owner of NFT #{nft_id}")
                 return False
             
-            # 检查是否已有活跃挂单
+            # Check if there's already an active listing
             cursor.execute('''
                 SELECT id FROM listings 
                 WHERE collection_id = ? AND nft_id = ? AND status = 'active'
             ''', (collection_id, nft_id))
             if cursor.fetchone():
-                print(f"⚠️ NFT #{nft_id} 已有活跃挂单，取消旧挂单")
+                print(f"⚠️ NFT #{nft_id} already has an active listing, cancelling old listing")
                 cursor.execute('''
                     UPDATE listings SET status = 'cancelled' 
                     WHERE collection_id = ? AND nft_id = ? AND status = 'active'
                 ''', (collection_id, nft_id))
             
-            # 创建新挂单
+            # Create new listing
             cursor.execute('''
                 INSERT INTO listings 
                 (collection_id, nft_id, seller, price, created_at_height, tx_hash)
                 VALUES (?, ?, ?, ?, ?, ?)
             ''', (collection_id, nft_id, seller, price, height, tx_hash))
             
-            # 更新 NFT 状态
+            # Update NFT status
             cursor.execute('''
                 UPDATE nfts SET status = 'listed' 
                 WHERE collection_id = ? AND nft_id = ?
             ''', (collection_id, nft_id))
             
             conn.commit()
-            print(f"✅ 挂单成功: {collection_id}#{nft_id} @ {price} utia")
+            print(f"✅ Listing successful: {collection_id}#{nft_id} @ {price} utia")
             return True
             
         except Exception as e:
             conn.rollback()
-            print(f"❌ 挂单失败: {e}")
+            print(f"❌ Listing failed: {e}")
             return False
         finally:
             conn.close()
     
     def get_active_listing(self, collection_id: str, nft_id: int) -> Optional[Dict]:
-        """获取活跃挂单"""
+        """Get active listing"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
@@ -498,10 +498,10 @@ class NFTDatabase:
             }
         return None
     
-    # ================== 查询方法 ==================
+    # ================== Query Methods ==================
     
     def get_nfts_by_owner(self, owner: str) -> List[Dict]:
-        """获取某地址拥有的所有 NFT"""
+        """Get all NFTs owned by an address"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM nfts WHERE owner = ?", (owner,))
@@ -518,7 +518,7 @@ class NFTDatabase:
         } for row in rows]
     
     def get_all_listings(self) -> List[Dict]:
-        """获取所有活跃挂单"""
+        """Get all active listings"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
@@ -539,10 +539,10 @@ class NFTDatabase:
             'metadata_uri': row[9]
         } for row in rows]
     
-    # ================== 索引器状态 ==================
+    # ================== Indexer State ==================
     
     def get_last_indexed_height(self) -> int:
-        """获取最后索引的区块高度"""
+        """Get last indexed block height"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute("SELECT value FROM indexer_state WHERE key = 'last_height'")
@@ -551,7 +551,7 @@ class NFTDatabase:
         return int(row[0]) if row else 0
     
     def set_last_indexed_height(self, height: int):
-        """设置最后索引的区块高度"""
+        """Set last indexed block height"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
@@ -562,7 +562,7 @@ class NFTDatabase:
         conn.close()
     
     def is_tx_processed(self, tx_hash: str) -> bool:
-        """检查交易是否已处理"""
+        """Check if transaction has been processed"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute("SELECT tx_hash FROM processed_txs WHERE tx_hash = ?", (tx_hash,))
@@ -571,7 +571,7 @@ class NFTDatabase:
         return result
     
     def mark_tx_processed(self, tx_hash: str, height: int):
-        """标记交易已处理"""
+        """Mark transaction as processed"""
         conn = self._get_conn()
         cursor = conn.cursor()
         cursor.execute('''
@@ -581,11 +581,11 @@ class NFTDatabase:
         conn.close()
 
 
-# 测试
+# Test
 if __name__ == "__main__":
     db = NFTDatabase()
     
-    # 测试创建集合
+    # Test create collection
     test_collection = {
         "type": "collection_definition",
         "collection_id": "test_collection_001",
@@ -600,7 +600,7 @@ if __name__ == "__main__":
     
     db.create_collection(test_collection, 100, "test_tx_hash")
     
-    # 查询
-    print("\n📦 集合信息:", db.get_collection("test_collection_001"))
+    # Query
+    print("\n📦 Collection info:", db.get_collection("test_collection_001"))
     print("\n🎨 NFT #1:", db.get_nft("test_collection_001", 1))
-    print("\n👤 issuer 的 NFT:", db.get_nfts_by_owner("celestia1testissuer"))
+    print("\n👤 Issuer's NFTs:", db.get_nfts_by_owner("celestia1testissuer"))
