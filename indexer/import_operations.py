@@ -9,7 +9,7 @@ from database import NFTDatabase
 
 
 def import_test_flow_results():
-    """导入测试流程的结果"""
+    """Import results from the test flow"""
     db = NFTDatabase()
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     
@@ -17,14 +17,14 @@ def import_test_flow_results():
     results_file = os.path.join(data_dir, 'test_flow_results.json')
     
     if not os.path.exists(results_file):
-        print(f"❌ 文件不存在: {results_file}")
+        print(f"❌ File does not exist: {results_file}")
         return
     
     with open(results_file, 'r') as f:
         data = json.load(f)
     
     results = data.get('results', [])
-    print(f"找到 {len(results)} 条操作记录\n")
+    print(f"Found {len(results)} operation records\n")
     
     for op_type, result in results:
         if not result:
@@ -34,15 +34,15 @@ def import_test_flow_results():
         height = result.get('height', 0)
         tx_hash = result.get('txhash', '')
         
-        print(f"处理: {op_type} @ 高度 {height}")
-        print(f"  数据: {blob_data}")
+        print(f"Processing: {op_type} @ height {height}")
+        print(f"  Data: {blob_data}")
         
         process_operation(db, blob_data, height, tx_hash)
         print()
 
 
 def process_operation(db: NFTDatabase, data: dict, height: int, tx_hash: str):
-    """处理单条操作"""
+    """Process a single operation"""
     data_type = data.get('type', '')
     
     if data_type == 'nft_mint':
@@ -63,7 +63,7 @@ def process_operation(db: NFTDatabase, data: dict, height: int, tx_hash: str):
             issuer=issuer,
             tx_hash=tx_hash
         )
-        print(f"  Mint 结果: {'✅' if success else '❌'}")
+        print(f"  Mint result: {'✅' if success else '❌'}")
         
     elif data_type == 'nft_transfer':
         collection_id = data.get('collection_id')
@@ -80,7 +80,7 @@ def process_operation(db: NFTDatabase, data: dict, height: int, tx_hash: str):
             tx_hash=tx_hash,
             tx_type="transfer"
         )
-        print(f"  Transfer 结果: {'✅' if success else '❌'}")
+        print(f"  Transfer result: {'✅' if success else '❌'}")
         
     elif data_type == 'nft_list':
         collection_id = data.get('collection_id')
@@ -96,14 +96,14 @@ def process_operation(db: NFTDatabase, data: dict, height: int, tx_hash: str):
             height=height,
             tx_hash=tx_hash
         )
-        print(f"  List 结果: {'✅' if success else '❌'}")
+        print(f"  List result: {'✅' if success else '❌'}")
         
     elif data_type == 'nft_buy':
         collection_id = data.get('collection_id')
         nft_id = data.get('nft_id')
         buyer = data.get('buyer')
         
-        # 获取挂单
+        # Get listing
         listing = db.get_active_listing(collection_id, nft_id)
         if listing:
             success = db.transfer_nft(
@@ -116,18 +116,18 @@ def process_operation(db: NFTDatabase, data: dict, height: int, tx_hash: str):
                 tx_type="sale",
                 price=listing['price']
             )
-            print(f"  Buy 结果: {'✅' if success else '❌'}")
+            print(f"  Buy result: {'✅' if success else '❌'}")
         else:
-            print(f"  Buy 失败: 没有找到活跃挂单")
+            print(f"  Buy failed: No active listing found")
     else:
-        print(f"  跳过未知类型: {data_type}")
+        print(f"  Skipping unknown type: {data_type}")
 
 
 if __name__ == "__main__":
     print("="*50)
-    print("导入测试流程结果")
+    print("Importing test flow results")
     print("="*50 + "\n")
     import_test_flow_results()
     print("\n" + "="*50)
-    print("导入完成!")
+    print("Import complete!")
     print("="*50)
