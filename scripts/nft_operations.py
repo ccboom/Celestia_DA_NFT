@@ -11,7 +11,7 @@ from docker_blob_client import DockerBlobClient, NAMESPACE_ID
 
 
 def get_address(key_name: str) -> str:
-    """获取容器内账户地址"""
+    """Get account address inside container"""
     result = subprocess.run(
         f'docker exec celestia-validator celestia-appd keys show {key_name} -a --keyring-backend test',
         shell=True, capture_output=True, text=True
@@ -19,7 +19,7 @@ def get_address(key_name: str) -> str:
     return result.stdout.strip()
 
 
-# 获取地址
+# Get addresses
 ALICE_ADDRESS = get_address('alice')
 BOB_ADDRESS = get_address('bob')
 VALIDATOR_ADDRESS = get_address('validator')
@@ -32,8 +32,8 @@ def mint_nft(collection_id: str, nft_id: int, to_address: str,
              metadata_uri: str = "", extra: dict = None, 
              from_account: str = "alice"):
     """
-    铸造新 NFT
-    只有 collection 的 issuer 才能铸造
+    Mint new NFT
+    Only the collection issuer can mint
     """
     client = DockerBlobClient()
     
@@ -48,7 +48,7 @@ def mint_nft(collection_id: str, nft_id: int, to_address: str,
         "timestamp": int(time.time())
     }
     
-    print(f"\n🎨 铸造 NFT: {collection_id}#{nft_id}")
+    print(f"\n🎨 Minting NFT: {collection_id}#{nft_id}")
     print(f"  To: {to_address[:20]}...")
     
     return client.submit_blob(data, from_account=from_account)
@@ -58,8 +58,8 @@ def transfer_nft(collection_id: str, nft_id: int,
                  from_address: str, to_address: str,
                  from_account: str = "alice"):
     """
-    转移 NFT
-    只有当前拥有者才能转移
+    Transfer NFT
+    Only the current owner can transfer
     """
     client = DockerBlobClient()
     
@@ -72,7 +72,7 @@ def transfer_nft(collection_id: str, nft_id: int,
         "timestamp": int(time.time())
     }
     
-    print(f"\n🔄 转移 NFT: {collection_id}#{nft_id}")
+    print(f"\n🔄 Transferring NFT: {collection_id}#{nft_id}")
     print(f"  From: {from_address[:20]}...")
     print(f"  To: {to_address[:20]}...")
     
@@ -83,8 +83,8 @@ def list_nft(collection_id: str, nft_id: int,
              seller_address: str, price_utia: int,
              from_account: str = "alice"):
     """
-    挂单出售 NFT
-    价格单位: utia (1 TIA = 1,000,000 utia)
+    List NFT for sale
+    Price unit: utia (1 TIA = 1,000,000 utia)
     """
     client = DockerBlobClient()
     
@@ -97,7 +97,7 @@ def list_nft(collection_id: str, nft_id: int,
         "timestamp": int(time.time())
     }
     
-    print(f"\n💰 挂单 NFT: {collection_id}#{nft_id}")
+    print(f"\n💰 Listing NFT: {collection_id}#{nft_id}")
     print(f"  Seller: {seller_address[:20]}...")
     print(f"  Price: {price_utia} utia ({price_utia / 1_000_000} TIA)")
     
@@ -106,7 +106,7 @@ def list_nft(collection_id: str, nft_id: int,
 
 def cancel_listing(collection_id: str, nft_id: int,
                    seller_address: str, from_account: str = "alice"):
-    """取消挂单"""
+    """Cancel listing"""
     client = DockerBlobClient()
     
     data = {
@@ -117,7 +117,7 @@ def cancel_listing(collection_id: str, nft_id: int,
         "timestamp": int(time.time())
     }
     
-    print(f"\n❌ 取消挂单: {collection_id}#{nft_id}")
+    print(f"\n❌ Cancelling listing: {collection_id}#{nft_id}")
     
     return client.submit_blob(data, from_account=from_account)
 
@@ -126,10 +126,10 @@ def buy_nft(collection_id: str, nft_id: int,
             buyer_address: str, payment_tx_hash: str = "",
             from_account: str = "bob"):
     """
-    购买 NFT
+    Buy NFT
     
-    在真实场景中，buyer 需要先发送一笔转账给 seller，
-    然后把转账的 tx_hash 作为 payment_tx_hash 传入
+    In a real scenario, the buyer needs to first send a transfer to the seller,
+    then pass the transfer tx_hash as payment_tx_hash
     """
     client = DockerBlobClient()
     
@@ -142,26 +142,26 @@ def buy_nft(collection_id: str, nft_id: int,
         "timestamp": int(time.time())
     }
     
-    print(f"\n🛒 购买 NFT: {collection_id}#{nft_id}")
+    print(f"\n🛒 Buying NFT: {collection_id}#{nft_id}")
     print(f"  Buyer: {buyer_address[:20]}...")
     
     return client.submit_blob(data, from_account=from_account)
 
 
-# ============ 测试完整流程 ============
+# ============ Test Full Flow ============
 
 def test_full_flow():
-    """测试完整的 NFT 生命周期"""
+    """Test complete NFT lifecycle"""
     collection_id = "celestia_dragons_v1"
     
     print("\n" + "="*60)
-    print("🧪 开始测试完整 NFT 流程")
+    print("🧪 Starting complete NFT flow test")
     print("="*60)
     
     results = []
     
-    # 1. 铸造新 NFT #4 给 Alice
-    print("\n【步骤 1】铸造新 NFT #4 给 Alice")
+    # 1. Mint new NFT #4 to Alice
+    print("\n【Step 1】Mint new NFT #4 to Alice")
     result = mint_nft(
         collection_id=collection_id,
         nft_id=4,
@@ -171,11 +171,11 @@ def test_full_flow():
         from_account="alice"
     )
     if result:
-        print(f"✅ 铸造成功，高度: {result['height']}")
+        print(f"✅ Mint successful, height: {result['height']}")
         results.append(("mint", result))
     
-    # 2. Alice 挂单出售 #1
-    print("\n【步骤 2】Alice 挂单出售 #1")
+    # 2. Alice lists #1 for sale
+    print("\n【Step 2】Alice lists #1 for sale")
     result = list_nft(
         collection_id=collection_id,
         nft_id=1,
@@ -184,11 +184,11 @@ def test_full_flow():
         from_account="alice"
     )
     if result:
-        print(f"✅ 挂单成功，高度: {result['height']}")
+        print(f"✅ Listing successful, height: {result['height']}")
         results.append(("list", result))
     
-    # 3. Bob 购买 #1
-    print("\n【步骤 3】Bob 购买 #1")
+    # 3. Bob buys #1
+    print("\n【Step 3】Bob buys #1")
     result = buy_nft(
         collection_id=collection_id,
         nft_id=1,
@@ -196,11 +196,11 @@ def test_full_flow():
         from_account="bob"
     )
     if result:
-        print(f"✅ 购买成功，高度: {result['height']}")
+        print(f"✅ Purchase successful, height: {result['height']}")
         results.append(("buy", result))
     
-    # 4. Bob 转移 #1 给 Validator
-    print("\n【步骤 4】Bob 转移 #1 给 Validator")
+    # 4. Bob transfers #1 to Validator
+    print("\n【Step 4】Bob transfers #1 to Validator")
     result = transfer_nft(
         collection_id=collection_id,
         nft_id=1,
@@ -209,14 +209,14 @@ def test_full_flow():
         from_account="bob"
     )
     if result:
-        print(f"✅ 转移成功，高度: {result['height']}")
+        print(f"✅ Transfer successful, height: {result['height']}")
         results.append(("transfer", result))
     
     print("\n" + "="*60)
-    print("🎉 测试流程完成!")
+    print("🎉 Test flow completed!")
     print("="*60)
     
-    # 保存所有结果
+    # Save all results
     output_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(output_dir, exist_ok=True)
     
@@ -226,7 +226,7 @@ def test_full_flow():
             'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
         }, f, indent=2, default=str)
     
-    print(f"\n结果已保存到: data/test_flow_results.json")
+    print(f"\nResults saved to: data/test_flow_results.json")
     
     return results
 
@@ -234,19 +234,19 @@ def test_full_flow():
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description='NFT 操作工具')
+    parser = argparse.ArgumentParser(description='NFT Operations Tool')
     parser.add_argument('action', nargs='?', default='test',
                         choices=['mint', 'transfer', 'list', 'buy', 'cancel', 'test'],
-                        help='要执行的操作')
-    parser.add_argument('--collection', '-c', default='celestia_dragons_v1', help='集合 ID')
+                        help='Operation to execute')
+    parser.add_argument('--collection', '-c', default='celestia_dragons_v1', help='Collection ID')
     parser.add_argument('--nft-id', '-n', type=int, help='NFT ID')
-    parser.add_argument('--to', help='接收地址')
-    parser.add_argument('--price', type=int, help='价格 (utia)')
+    parser.add_argument('--to', help='Recipient address')
+    parser.add_argument('--price', type=int, help='Price (utia)')
     
     args = parser.parse_args()
     
     if args.action == 'test':
         test_full_flow()
     else:
-        print(f"执行 {args.action} 操作...")
-        # 根据参数执行相应操作
+        print(f"Executing {args.action} operation...")
+        # Execute corresponding operation based on arguments
