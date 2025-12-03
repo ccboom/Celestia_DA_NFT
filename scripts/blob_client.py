@@ -1,5 +1,5 @@
 """
-Celestia Blob 提交客户端
+Celestia Blob Submission Client
 """
 import requests
 import json
@@ -17,7 +17,7 @@ from config.config import (
 
 
 class CelestiaBlobClient:
-    """Celestia Blob 操作客户端"""
+    """Celestia Blob Operations Client"""
     
     def __init__(self, 
                  gateway_url: str = NODE_API_URL,
@@ -34,27 +34,27 @@ class CelestiaBlobClient:
         }
     
     def _namespace_to_base64(self) -> str:
-        """将 hex namespace 转为 base64"""
+        """Convert hex namespace to base64"""
         ns_bytes = bytes.fromhex(self.namespace_id)
         return base64.b64encode(ns_bytes).decode()
     
     def submit_blob(self, data: Dict[str, Any]) -> Optional[Dict]:
         """
-        提交 Blob 到 Celestia
+        Submit Blob to Celestia
         
         Args:
-            data: 要提交的数据（会被 JSON 序列化）
+            data: Data to submit (will be JSON serialized)
         
         Returns:
-            提交结果 或 None
+            Submission result or None
         """
         try:
-            # 1. 将数据转为 JSON 字符串，再转为 base64
+            # 1. Convert data to JSON string, then to base64
             json_str = json.dumps(data, separators=(',', ':'))
             data_base64 = base64.b64encode(json_str.encode()).decode()
             
-            # 2. 构造 JSON-RPC 请求
-            # 使用 blob.Submit 方法
+            # 2. Construct JSON-RPC request
+            # Use blob.Submit method
             payload = {
                 "jsonrpc": "2.0",
                 "id": 1,
@@ -65,7 +65,7 @@ class CelestiaBlobClient:
                             "namespace": self._namespace_to_base64(),
                             "data": data_base64,
                             "share_version": 0,
-                            "commitment": ""  # 会自动计算
+                            "commitment": ""  # Will be calculated automatically
                         }
                     ],
                     {
@@ -75,11 +75,11 @@ class CelestiaBlobClient:
                 ]
             }
             
-            print(f"📤 提交 Blob...")
+            print(f"📤 Submitting Blob...")
             print(f"   Namespace: {self.namespace_id}")
             print(f"   Data size: {len(json_str)} bytes")
             
-            # 3. 发送请求到 RPC
+            # 3. Send request to RPC
             response = requests.post(
                 self.rpc_url,
                 json=payload,
@@ -90,11 +90,11 @@ class CelestiaBlobClient:
             result = response.json()
             
             if "error" in result:
-                print(f"❌ 提交失败: {result['error']}")
+                print(f"❌ Submission failed: {result['error']}")
                 return None
             
             height = result.get('result', 0)
-            print(f"✅ Blob 提交成功! 区块高度: {height}")
+            print(f"✅ Blob submitted successfully! Block height: {height}")
             
             return {
                 "height": height,
@@ -104,23 +104,23 @@ class CelestiaBlobClient:
             }
             
         except requests.exceptions.RequestException as e:
-            print(f"❌ 网络错误: {e}")
+            print(f"❌ Network error: {e}")
             return None
         except Exception as e:
-            print(f"❌ 提交失败: {e}")
+            print(f"❌ Submission failed: {e}")
             import traceback
             traceback.print_exc()
             return None
     
     def get_blobs_at_height(self, height: int) -> list:
         """
-        获取指定高度的所有 Blob
+        Get all Blobs at specified height
         
         Args:
-            height: 区块高度
+            height: Block height
         
         Returns:
-            Blob 列表
+            List of Blobs
         """
         try:
             payload = {
@@ -143,7 +143,7 @@ class CelestiaBlobClient:
             result = response.json()
             
             if "error" in result:
-                # 可能是该高度没有 blob
+                # Possibly no blob at this height
                 return []
             
             blobs = result.get('result', [])
@@ -151,7 +151,7 @@ class CelestiaBlobClient:
             
             for blob in blobs or []:
                 try:
-                    # 解码 base64 数据
+                    # Decode base64 data
                     data_bytes = base64.b64decode(blob.get('data', ''))
                     data_json = json.loads(data_bytes.decode())
                     parsed_blobs.append({
@@ -166,11 +166,11 @@ class CelestiaBlobClient:
             return parsed_blobs
             
         except Exception as e:
-            print(f"❌ 获取 Blob 失败: {e}")
+            print(f"❌ Failed to get Blob: {e}")
             return []
     
     def get_current_height(self) -> int:
-        """获取当前区块高度"""
+        """Get current block height"""
         try:
             payload = {
                 "jsonrpc": "2.0",
@@ -192,17 +192,17 @@ class CelestiaBlobClient:
             return height
             
         except Exception as e:
-            print(f"❌ 获取高度失败: {e}")
+            print(f"❌ Failed to get height: {e}")
             return 0
 
 
-# ============ 简化的操作函数 ============
+# ============ Simplified Operation Functions ============
 
 def submit_collection(collection_data: Dict) -> Optional[Dict]:
-    """提交 NFT 集合定义"""
+    """Submit NFT collection definition"""
     client = CelestiaBlobClient()
     
-    # 确保数据格式正确
+    # Ensure data format is correct
     if 'type' not in collection_data:
         collection_data['type'] = 'collection_definition'
     
@@ -210,7 +210,7 @@ def submit_collection(collection_data: Dict) -> Optional[Dict]:
 
 
 def submit_operation(operation: str, collection_id: str, **kwargs) -> Optional[Dict]:
-    """提交 NFT 操作 (mint/transfer/list/buy)"""
+    """Submit NFT operation (mint/transfer/list/buy)"""
     client = CelestiaBlobClient()
     
     data = {
@@ -223,15 +223,15 @@ def submit_operation(operation: str, collection_id: str, **kwargs) -> Optional[D
     return client.submit_blob(data)
 
 
-# 测试
+# Test
 if __name__ == "__main__":
     client = CelestiaBlobClient()
     
-    # 测试获取当前高度
+    # Test get current height
     height = client.get_current_height()
-    print(f"📊 当前区块高度: {height}")
+    print(f"📊 Current block height: {height}")
     
-    # 测试提交 Blob
+    # Test submit Blob
     test_data = {
         "type": "test",
         "message": "Hello Celestia!",
@@ -240,9 +240,10 @@ if __name__ == "__main__":
     
     result = client.submit_blob(test_data)
     if result:
-        print(f"📦 提交结果: {result}")
+        print(f"📦 Submission result: {result}")
         
-        # 等待几秒后查询
+        # Wait a few seconds then query
         time.sleep(3)
         blobs = client.get_blobs_at_height(result['height'])
-        print(f"📥 该高度的 Blobs: {blobs}")
+
+        print(f"📥 Blobs at this height: {blobs}")
