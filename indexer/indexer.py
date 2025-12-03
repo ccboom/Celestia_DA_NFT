@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database import NFTDatabase
 from scripts.docker_blob_client import DockerBlobClient
 
-# 设置日志
+# Set up logging
 os.makedirs(os.path.join(os.path.dirname(__file__), '..', 'logs'), exist_ok=True)
 
 logging.basicConfig(
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class NFTIndexer:
-    """NFT 索引器 - 从链上事件重建状态"""
+    """NFT Indexer - Rebuild state from on-chain events"""
     
     def __init__(self):
         self.db = NFTDatabase()
@@ -35,7 +35,7 @@ class NFTIndexer:
         self.running = False
     
     def process_blob(self, data: Dict, height: int, tx_hash: str = None) -> bool:
-        """处理单个 Blob 数据"""
+        """Process a single Blob data"""
         try:
             data_type = data.get('type', '')
             
@@ -52,29 +52,29 @@ class NFTIndexer:
             elif data_type == 'nft_buy':
                 return self._handle_buy(data, height, tx_hash)
             else:
-                logger.debug(f"跳过未知类型: {data_type}")
+                logger.debug(f"Skipping unknown type: {data_type}")
                 return False
                 
         except Exception as e:
-            logger.error(f"处理 Blob 失败: {e}")
+            logger.error(f"Failed to process Blob: {e}")
             return False
     
     def _handle_collection_definition(self, data: Dict, height: int, tx_hash: str) -> bool:
-        """处理集合定义"""
-        logger.info(f"📦 发现集合定义: {data.get('collection_id')}")
+       """Handle collection definition"""
+        logger.info(f"📦 Found collection definition: {data.get('collection_id')}")
         
         required_fields = ['collection_id', 'issuer', 'name']
         for field in required_fields:
             if field not in data:
-                logger.error(f"集合定义缺少字段: {field}")
+                logger.error(f"Collection definition missing field: {field}")
                 return False
         
         data['created_at_height'] = height
         return self.db.create_collection(data, height, tx_hash)
     
     def _handle_mint(self, data: Dict, height: int, tx_hash: str) -> bool:
-        """处理铸造操作"""
-        logger.info(f"🎨 发现铸造: {data.get('collection_id')}#{data.get('nft_id')}")
+        """Handle mint operation"""
+        logger.info(f"🎨 Found mint: {data.get('collection_id')}#{data.get('nft_id')}")
         
         collection_id = data.get('collection_id')
         nft_id = data.get('nft_id')
@@ -82,7 +82,7 @@ class NFTIndexer:
         issuer = data.get('issuer')
         
         if not all([collection_id, nft_id, to_addr, issuer]):
-            logger.error("铸造操作缺少必要字段")
+            logger.error("Mint operation missing required fields")
             return False
         
         return self.db.mint_nft(
@@ -97,8 +97,8 @@ class NFTIndexer:
         )
     
     def _handle_transfer(self, data: Dict, height: int, tx_hash: str) -> bool:
-        """处理转移操作"""
-        logger.info(f"🔄 发现转移: {data.get('collection_id')}#{data.get('nft_id')}")
+        """Handle transfer operation"""
+        logger.info(f"🔄 Found transfer: {data.get('collection_id')}#{data.get('nft_id')}")
         
         collection_id = data.get('collection_id')
         nft_id = data.get('nft_id')
@@ -106,7 +106,7 @@ class NFTIndexer:
         to_addr = data.get('to')
         
         if not all([collection_id, nft_id, from_addr, to_addr]):
-            logger.error("转移操作缺少必要字段")
+            logger.error("Transfer operation missing required fields")
             return False
         
         return self.db.transfer_nft(
@@ -120,8 +120,8 @@ class NFTIndexer:
         )
     
     def _handle_list(self, data: Dict, height: int, tx_hash: str) -> bool:
-        """处理挂单操作"""
-        logger.info(f"💰 发现挂单: {data.get('collection_id')}#{data.get('nft_id')}")
+        """Handle listing operation"""
+        logger.info(f"💰 Found listing: {data.get('collection_id')}#{data.get('nft_id')}")
         
         collection_id = data.get('collection_id')
         nft_id = data.get('nft_id')
@@ -129,7 +129,7 @@ class NFTIndexer:
         price = data.get('price')
         
         if not all([collection_id, nft_id, seller, price]):
-            logger.error("挂单操作缺少必要字段")
+            logger.error("Listing operation missing required fields")
             return False
         
         return self.db.create_listing(
@@ -142,15 +142,15 @@ class NFTIndexer:
         )
     
     def _handle_cancel_list(self, data: Dict, height: int, tx_hash: str) -> bool:
-        """处理取消挂单"""
-        logger.info(f"❌ 发现取消挂单: {data.get('collection_id')}#{data.get('nft_id')}")
+        """Handle cancel listing"""
+        logger.info(f"❌ Found cancel listing: {data.get('collection_id')}#{data.get('nft_id')}")
         
         collection_id = data.get('collection_id')
         nft_id = data.get('nft_id')
         seller = data.get('seller')
         
         if not all([collection_id, nft_id, seller]):
-            logger.error("取消挂单缺少必要字段")
+            logger.error("Cancel listing missing required fields")
             return False
         
         return self.db.cancel_listing(
@@ -162,24 +162,24 @@ class NFTIndexer:
         )
     
     def _handle_buy(self, data: Dict, height: int, tx_hash: str) -> bool:
-        """处理购买操作"""
-        logger.info(f"🛒 发现购买: {data.get('collection_id')}#{data.get('nft_id')}")
+        """Handle buy operation"""
+        logger.info(f"🛒 Found purchase: {data.get('collection_id')}#{data.get('nft_id')}")
         
         collection_id = data.get('collection_id')
         nft_id = data.get('nft_id')
         buyer = data.get('buyer')
         
         if not all([collection_id, nft_id, buyer]):
-            logger.error("购买操作缺少必要字段")
+            logger.error("Buy operation missing required fields")
             return False
         
-        # 获取当前挂单
+        # Get current listing
         listing = self.db.get_active_listing(collection_id, nft_id)
         if not listing:
-            logger.error(f"NFT {collection_id}#{nft_id} 没有活跃挂单")
+            logger.error(f"NFT {collection_id}#{nft_id} has no active listing")
             return False
         
-        # 执行转移（从卖家到买家）
+        # Execute transfer (from seller to buyer)
         return self.db.transfer_nft(
             collection_id=collection_id,
             nft_id=nft_id,
@@ -192,12 +192,12 @@ class NFTIndexer:
         )
     
     def import_from_file(self, filepath: str) -> bool:
-        """从本地 JSON 文件导入数据"""
+        """Import data from local JSON file"""
         try:
             with open(filepath, 'r') as f:
                 data = json.load(f)
             
-            # 支持两种格式：直接的 blob 数据，或包含 collection_data 的部署文件
+            # Support two formats: direct blob data, or deployment file containing collection_data
             if 'collection_data' in data:
                 blob_data = data['collection_data']
                 result = data.get('result', {})
@@ -211,29 +211,29 @@ class NFTIndexer:
             return self.process_blob(blob_data, height, tx_hash)
             
         except Exception as e:
-            logger.error(f"导入文件失败 {filepath}: {e}")
+            logger.error(f"Failed to import file {filepath}: {e}")
             return False
     
     def import_all_from_data_dir(self):
-        """从 data 目录导入所有 JSON 文件"""
+        """Import all JSON files from data directory"""
         data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         
         if not os.path.exists(data_dir):
-            logger.warning(f"数据目录不存在: {data_dir}")
+            logger.warning(f"Data directory does not exist: {data_dir}")
             return
         
         json_files = sorted([f for f in os.listdir(data_dir) if f.endswith('.json')])
         
-        logger.info(f"找到 {len(json_files)} 个 JSON 文件")
+        logger.info(f"Found {len(json_files)} JSON files")
         
         for filename in json_files:
             filepath = os.path.join(data_dir, filename)
-            logger.info(f"导入: {filename}")
+            logger.info(f"Importing: {filename}")
             self.import_from_file(filepath)
 
 
 def main():
-    """主函数"""
+    """Main function"""
     print("""
     ╔═══════════════════════════════════════════╗
     ║     Celestia NFT Indexer (Docker)        ║
@@ -242,11 +242,11 @@ def main():
     
     indexer = NFTIndexer()
     
-    # 从本地文件导入所有数据
+   # Import all data from local files
     indexer.import_all_from_data_dir()
     
-    print("\n✅ 索引完成!")
-    print("你可以启动 API 服务查看数据:")
+    print("\n✅ Indexing complete!")
+    print("You can start the API service to view data:")
     print("  uvicorn frontend.api:app --host 0.0.0.0 --port 8000")
 
 
