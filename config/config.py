@@ -3,20 +3,20 @@
 import os
 import subprocess
 
-# Docker 容器名
+# Docker container name
 CONTAINER_NAME = "celestia-validator"
 
-# Namespace (29 bytes = 58 hex)
+# Namespace (10 bytes = 20 hex)
 NAMESPACE_ID = "0000004e46545a4f4e45"
 
-# 数据库路径
+# Database path
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "nft.db")
 
-# 索引器配置
+# Indexer configuration
 START_HEIGHT = 1
 INDEXER_POLL_INTERVAL = 3
 
-# 获取 Docker 容器内的账户地址
+# Get account address inside the Docker container
 def get_address(key_name: str) -> str:
     try:
         result = subprocess.run(
@@ -27,13 +27,14 @@ def get_address(key_name: str) -> str:
     except:
         return f"celestia1{key_name}_placeholder"
 
-# 账户地址（启动时动态获取）
+# Account addresses (retrieved at startup)
 VALIDATOR_ADDRESS = get_address('validator')
 ALICE_ADDRESS = get_address('alice')
 BOB_ADDRESS = get_address('bob')
 
 ISSUER_ADDRESS = ALICE_ADDRESS
 
-# Gas 配置
+# Gas configuration
 GAS_LIMIT = 200000
+
 GAS_FEE = 2000
